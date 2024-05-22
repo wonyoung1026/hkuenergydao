@@ -5,11 +5,6 @@ Check out the demo [here](https://react-landing-page-two.now.sh/)
 
 ## Getting Started
 
-Clone the repository:
-
-```
-git clone https://github.com/000kelvin/react-landing-page.git
-```
 
 Run in Local Environment:
 
@@ -25,7 +20,13 @@ Run in Production:
 npm build
 ```
 
-## Contributions
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+### Example of deploying a new smart contract
+```
+npx hardhat compile
+npx hardhat run scripts/deploy-counter.js --network zkEVM
+```
+
+Note you need to set `ACCOUNT_PRIVATE_KEY` and `INFURA_API_KEY` in .env file
+
 
