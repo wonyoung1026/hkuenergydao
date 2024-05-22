@@ -1,7 +1,3 @@
-# Quick and Simple React Landing Page
-
-This is a very simple react landing page for easy manipulation and use. <br />
-Check out the demo [here](https://react-landing-page-two.now.sh/)
 
 ## Getting Started
 
