@@ -20,34 +20,34 @@ function Content() {
                 </div>
             </div>
 
-            <section class="features-icons bg-light text-center det-ails">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
-                                <div class="features-icons-icon d-flex  icon-bra-ails">
-                                    <i class="icon-screen-desktop m-auto text-primary icon-ails"></i>
+            <section className="features-icons bg-light text-center det-ails">
+                <div className="container">
+                    <div className="row">
+                        <div className="col-lg-4">
+                            <div className="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                                <div className="features-icons-icon d-flex  icon-bra-ails">
+                                    <i className="icon-screen-desktop m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Placeholder</h5>
-                                <p class="lead mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                                <p className="lead mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
-                                <div class="features-icons-icon d-flex  icon-bra-ails">
-                                    <i class="icon-layers m-auto text-primary icon-ails"></i>
+                        <div className="col-lg-4">
+                            <div className="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                                <div className="features-icons-icon d-flex  icon-bra-ails">
+                                    <i className="icon-layers m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Placeholder</h5>
-                                <p class="lead mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                                <p className="lead mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="features-icons-item mx-auto mb-0 mb-lg-3">
-                                <div class="features-icons-icon d-flex  icon-bra-ails">
-                                    <i class="icon-check m-auto text-primary icon-ails"></i>
+                        <div className="col-lg-4">
+                            <div className="features-icons-item mx-auto mb-0 mb-lg-3">
+                                <div className="features-icons-icon d-flex  icon-bra-ails">
+                                    <i className="icon-check m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Placeholder</h5>
-                                <p class="lead mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                                <p className="lead mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
                             </div>
                         </div>
                     </div>

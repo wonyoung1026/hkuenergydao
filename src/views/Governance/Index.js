@@ -11,20 +11,19 @@ import Footer from '../../components/Footer/Footer';
 
 import Counter from "../../contracts/Counter.sol/Counter.json";
 
-const counterAddress = "0xb0c00a781C10dbA9e680B50AFb8ead5D39E66485";
+const counterAddress = "0x9e012f66e653E486C23fF62e9890c289Ed459730";
 console.log(counterAddress, "Counter ABI: ", Counter.abi);
 
 function CounterTest() {
     const [count, setCount] = useState();
     const [isLoading, setIsLoading] = useState(false);
-  
+    
     useEffect(() => {
       // declare the data fetching function
       const fetchCount = async () => {
         const data = await readCounterValue();
         return data;
       };
-  
       fetchCount().catch(console.error);
     }, []);
   
@@ -32,20 +31,15 @@ function CounterTest() {
       // ethers.js에 define 되어 있음
       if (typeof window.ethereum !== "undefined") {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        console.log("provider", provider);
         const contract = new ethers.Contract(
           counterAddress,
           Counter.abi,
           provider
         );
-        console.log("contract", contract);
         try {
           const data = await contract.retrieve();
-          console.log(data);
-          console.log("data: ", parseInt(data.toString()));
           setCount(parseInt(data.toString()));
         } catch (err) {
-          console.log("Error: ", err);
           alert(
             "Switch your MetaMask network to Polygon zkEVM cardona testnet and refresh this page!"
           );
@@ -96,10 +90,9 @@ function CounterTest() {
   
 
 class Governance extends Component {
-
-    render() {
+  render() {
         return (
-            <div class="main-container">
+            <div className="main-container">
                 <Header />
                 <Content />
                 <CounterTest />

@@ -7,7 +7,7 @@ import Footer from '../../components/Footer/Footer';
 class Index extends Component {
     render() {
         return (
-            <div class="main-container">
+            <div className="main-container">
                 <Header />
                 <Content />
                 <Footer />

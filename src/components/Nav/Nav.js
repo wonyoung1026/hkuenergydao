@@ -1,21 +1,31 @@
 import { useSDK } from "@metamask/sdk-react";
 import React, { useState } from "react";
 
-
 function Nav() {
+    const { sdk, connected, connecting, provider, chainId } = useSDK();
 
     const [account, setAccount] = useState();
-    const { sdk, connected, connecting, provider, chainId } = useSDK();
-  
-    const connect = async () => {
+
+    const connect = async () => {  
       try {
         const accounts = await sdk?.connect();
-        setAccount(accounts?.[0]);
+        const truncatedAccount = accounts?.[0].slice(0,10);
+        setAccount(truncatedAccount);
       } catch (err) {
         console.warn("failed to connect..", err);
       }
     };
-  
+    const disconnect = async () => {
+      try {
+          sdk?.terminate();
+    
+      } catch (err) {
+          console.warn("failed to terminated..", err)
+      }
+    };
+    // Force connect on launch
+    connect();
+
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light static-top header-a">
             <div className="container nav-container">
@@ -48,10 +58,14 @@ function Nav() {
 
 
                       {connected && (
-
-                            <li className="nav-pills">
-                              {account && `Connected account: ${account}`}
-                              {chainId && `Connected chain: ${chainId}`}
+                            <li className="nav-item dropdown">
+                                <a className="btn btn-outline-secondary" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  {account && `Account: ${account}`}<br></br>
+                                </a>
+                                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                  <a className="dropdown-item" href="#" onClick={connect} role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reconnect</a>
+                                  <a className="dropdown-item" href="#" onClick={disconnect} role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Disconnect</a>
+                                </div>
                             </li>
                         ) ||                         
                         <li className="nav-item">
