@@ -8,9 +8,7 @@ import ContactUs from './views/ContactUs/Index';
 import GenerationStats from './views/GenerationStats/Index';
 
 function App() {
-  return (
-    
-    
+  return (  
     <Router>
       <div>
         <Routes>
