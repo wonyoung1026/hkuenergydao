@@ -15,7 +15,7 @@ root.render(
           name: "Energy DAO",
           url: window.location.href,
         },
-        infuraAPIKey: process.env.INFURA_API_KEY,
+        infuraAPIKey: process.env.REACT_APP_INFURA_API_KEY,
         // Other options.
       }}
     >
