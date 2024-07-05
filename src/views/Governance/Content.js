@@ -1,85 +1,234 @@
 import React, { Component, useState, useEffect } from "react"
-import Button from "@mui/material/Button";
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
 
-import { ethers } from "ethers";
 
-import Counter from "../../contracts/Counter.sol/Counter.json";
+import { ethers, BrowserProvider } from 'ethers';
 
-const counterAddress = "0x9e012f66e653E486C23fF62e9890c289Ed459730";
-console.log(counterAddress, "Counter ABI: ", Counter.abi);
+import Staker from "../../contracts/Staker.sol/Staker.json";
 
-function Content() {
-    const [count, setCount] = useState();
-    const [isLoading, setIsLoading] = useState(false);
-    
-    useEffect(() => {
-      // declare the data fetching function
-      const fetchCount = async () => {
-        const data = await readCounterValue();
-        return data;
-      };
-      fetchCount().catch(console.error);
-    }, []);
+// TODO: contract address hard coded for now
+const stakerAddress = "0x5459278815CEFB554919E16646D201Db10ffD7cd";
+console.log(stakerAddress, "Staker ABI: ", Staker.abi);
+
+const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
+
   
-    async function readCounterValue() {
-      // ethers.js에 define 되어 있음
-      if (typeof window.ethereum !== "undefined") {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract(
-          counterAddress,
-          Counter.abi,
-          provider
-        );
+function Content() {
+    const { ethereum } = window;
+    const provider = new BrowserProvider(ethereum);
+    const [signer, setSigner] = useState()
+
+    const [connectedAddress, setConnectedAddress] = useState()
+
+    const [apy, setApy] = useState();
+    const [isLoadingApy, setIsLoadingApy] = useState(false);
+    
+    const [enerStaked, setEnerStaked] = useState();
+    const [isLoadingEnerStaked, setIsLoadingEnerStaked] = useState(false);
+    
+    const [enerStakingReward, setEnerStakingReward] = useState();
+    const [isLoadingEnerStakingReward, setIsLoadingEnerStakingReward] = useState(false);
+    
+
+
+    const [totalEnerStaked, setTotalEnerStaked] = useState();
+    const [isLoadingTotalEnerStaked, setIsLoadingTotalEnerStaked] = useState(false);
+    
+    const [stakingRewardPool, setStakingRewardPool] = useState();
+    const [isLoadingStakingRewardPool, setIsLoadingStakingRewardPool] = useState(false);
+    
+    const [isHover, setIsHover] = useState();
+
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    async function connect() {
         try {
-          const data = await contract.retrieve();
-          setCount(parseInt(data.toString()));
+            let signer  = await provider.getSigner();
+            setSigner(signer);
+            let address = await signer.getAddress();
+            setConnectedAddress(address);
         } catch (err) {
-          alert(
-            "Switch your MetaMask network to Polygon zkEVM cardona testnet and refresh this page!"
-          );
+            console.warn("failed to connect..", err);
         }
       }
-    }
-  
-    async function requestAccount() {
-      await window.ethereum.request({ method: "eth_requestAccounts" });
-    }
-  
-    async function updateCounter() {
-      if (typeof window.ethereum !== "undefined") {
-        await requestAccount();
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        console.log({ provider });
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(counterAddress, Counter.abi, signer);
-        const transaction = await contract.increment();
-        setIsLoading(true);
-        await transaction.wait();
-        setIsLoading(false);
-        readCounterValue();
-      }
-    }
-  
-    const incrementCounter = async () => {
-      await updateCounter();
+
+    const fetchApy = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {;
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
+                setIsLoadingApy(true);
+                const stakingRewardRate = await contract.stakingRewardRate();
+                setApy(parseInt(stakingRewardRate));
+                setIsLoadingApy(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    const fetchEnerStaked = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {;
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
+                setIsLoadingEnerStaked(true);
+                const enerStaked = await contract.balances(connectedAddress);
+                setEnerStaked(parseInt(enerStaked));
+                setIsLoadingEnerStaked(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    const fetchEnerStakingReward = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {;
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
+                setIsLoadingEnerStakingReward(true);
+                const enerStakingReward = await contract.calculateGovernanceTokenStakingReward(connectedAddress);
+                setEnerStakingReward(parseInt(enerStakingReward));
+                setIsLoadingEnerStakingReward(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    const fetch = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {;
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
+                setIsLoadingEnerStakingReward(true);
+                const enerStakingReward = await contract.calculateGovernanceTokenStakingReward(connectedAddress);
+                setEnerStakingReward(parseInt(enerStakingReward));
+                setIsLoadingEnerStakingReward(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchTotalEnerStaked = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {;
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
+                setIsLoadingTotalEnerStaked(true);
+                const totalStaked = await contract.totalStaked();
+                setTotalEnerStaked(parseInt(totalStaked));
+                setIsLoadingTotalEnerStaked(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
     };
     
+    useEffect(() => {
+        // get signer and address
+        connect();
+        
+        // Stake section
+        fetchApy();
+        fetchEnerStaked();
+        fetchEnerStakingReward();
+        // calculatePctStaked();
+        // calculateEstimatedStakingReward();
+        
+        fetchTotalEnerStaked();
+        // fetchWithdrawalDeadline();
+        // checkIfDeadlinePassed(); --> then switch button to "Redeem ENER token"
+
+
+
+    }, [connectedAddress]);
     return (
         <div>
+            
+            <div className="modal">
+                <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                >
+                    <Box sx={modalStyle}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Text in a modal
+                        </Typography>
+                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                        </Typography>
+                    </Box>
+                </Modal>
+            </div>
             <div className="container content">
                 <div className="row">
-                    
                     <div className="col-sm-4 talk">
-                        <h3>Vote</h3>
-                        <br/>
-                        <div style={{minHeight: "100px"}}>
-                            
+                        <h3>Stake</h3>
+                        <div style={{minHeight: "250px"}}>
+                            <br />
+                            {
+                                !isLoadingApy && (
+                                    <div className="row">
+                                        <div className="col-sm-4">
+                                            <h6>APY</h6>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            {apy} %
+                                        </div>
+                                    </div>
+                                )  || (
+                                    <p>Loading APY...</p>
+                                )
+                            }
+                            <br/>
+                            {
+                                !isLoadingEnerStaked && (
+                                    <div className="row">
+                                        <div onMouseOver={handleOpen} className="col-sm-4">
+                                            <h6>Staked (ENER)</h6>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            {enerStaked}
+                                        </div>
+                                    </div>
+                                )  || (
+                                    <p>Loading amount of ENER staked...</p>
+                                )
+                            }
+                            <br/>
+                            {
+                                !isLoadingEnerStaked && (
+                                    <div className="row">
+                                        <div onMouseOver={handleOpen} className="col-sm-4">
+                                            <h6>Expected Staking Reward (ENER)</h6>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            {enerStakingReward}
+                                        </div>
+                                    </div>
+                                )  || (
+                                    <p>Loading expected ENER staking reward...</p>
+                                )
+                            }
                         </div>
                         <Button
                             className="btn btn-dark start start-two"
                             variant="contained"
                         >
-                            {"Vote"}
+                            {"Stake"}
                         </Button>
                     </div>
 
@@ -87,29 +236,15 @@ function Content() {
                         <h3>Redeem</h3>
                         <br/>
                         <div style={{minHeight: "100px"}}>
-                            Count : {count}
+                            {/* Count : {count} */}
                         </div>
                         <Button
                             className="btn btn-dark start start-two"
-                            onClick={incrementCounter}
+                            // onClick={incrementCounter}
                             variant="contained"
-                            disabled={isLoading}
+                            // disabled={isLoading}
                         >
-                            {isLoading ? "Loading..." : "Redeem"}
-                        </Button>
-                    </div>
-
-
-                    <div className="col-sm-4 talk">
-                        <h3>Stake</h3>
-                        <br/>
-                        <div style={{minHeight: "100px"}}>
-                        </div>
-                        <Button
-                            className="btn btn-dark start start-two"
-                            variant="contained"
-                        >
-                            {"Stake"}
+                            {/* {isLoading ? "Loading..." : "Redeem"} */}
                         </Button>
                     </div>
                 </div>
