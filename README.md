@@ -13,7 +13,7 @@ git clone https://github.com/wonyoung1026/hkuenergydao.git
 Run in Local Environment:
 
 ```
-npm install --legacy-peer-deps
+npm install
 npm start
 ```
 
@@ -27,7 +27,7 @@ npm build
 ### Example of deploying a new smart contract
 ```
 npx hardhat compile
-npx hardhat run scripts/deploy-counter.js --network zkEVM
+npx hardhat run scripts/deploy-staker.js --network zkEVM_Cardona
 ```
 
 Note you need to set `ACCOUNT_PRIVATE_KEY` and `INFURA_API_KEY` in .env file

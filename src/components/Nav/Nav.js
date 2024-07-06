@@ -1,16 +1,33 @@
 import { useSDK } from "@metamask/sdk-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+
+import Staker from "../../contracts/Staker.sol/Staker.json";
+
+import { ethers, BrowserProvider } from 'ethers';
+
+const stakerAddress = process.env.REACT_APP_STAKER_CONTRACT_ADDRESS;
 
 function Nav() {
-    const { sdk, connected, connecting, provider, chainId } = useSDK();
+    const { sdk, connected, connecting, _, chainId } = useSDK();
+    const { ethereum } = window;
+    const provider = new BrowserProvider(ethereum);
 
     const [account, setAccount] = useState();
+    const [accountIsAdmin, setAccountIsAdmin] = useState();
 
     const connect = async () => {  
       try {
         const accounts = await sdk?.connect();
-        const truncatedAccount = accounts?.[0].slice(0,10);
-        setAccount(truncatedAccount);
+        if (accounts && accounts.length > 0) {
+          const mainAccount = accounts[0];
+          const truncatedAccount = mainAccount.slice(0,10);
+          setAccount(truncatedAccount);
+          const isadm = await isAdmin(mainAccount);
+          setAccountIsAdmin(isadm);
+        }  else {
+          console.warn("No account found..");
+        }
       } catch (err) {
         console.warn("failed to connect..", err);
       }
@@ -23,7 +40,26 @@ function Nav() {
           console.warn("failed to terminated..", err)
       }
     };
-    // Force connect on launch
+
+    async function isAdmin(walletAddress) {
+      // ethers.js에 define 되어 있음
+      if (typeof window.ethereum !== "undefined") {
+        const contract = new ethers.Contract(
+          stakerAddress,
+          Staker.abi,
+          provider
+        );
+        try {
+          return await contract.isAdmin(walletAddress);
+        } catch (err) {
+          console.warn(err);
+          alert(
+            "Switch your MetaMask network to Polygon zkEVM cardona testnet and refresh this page...", err
+          );
+        }
+      }
+    }
+    // TODO: Force connect on launch for now. 
     connect();
 
     return (
@@ -45,7 +81,17 @@ function Nav() {
                                 Governance
                             </a>
                         </li>
+                        {
+                          accountIsAdmin && (
+                            <li className="nav-item dropdown">
+                                <a className="nav-link" href="/manage-pool">
+                                    Manage Reward Pool
+                                </a>
+                            </li>
+                          )
+                        }
                         
+
                         <li className="nav-item dropdown">
                             <a className="nav-link" href="/generation-stats">
                                 Generation Stats

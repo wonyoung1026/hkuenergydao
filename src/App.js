@@ -6,6 +6,7 @@ import Index from './views/Index/Index';
 import Governance from './views/Governance/Index';
 import ContactUs from './views/ContactUs/Index';
 import GenerationStats from './views/GenerationStats/Index';
+import ManagePool from './views/ManagePool/Index';
 
 function App() {
   return (  
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<Index />} />
           <Route path="/governance" element={<Governance />} />
+          <Route path="/manage-pool" element={<ManagePool />} />
           <Route path="/generation-stats" element={<GenerationStats />} />
           <Route path="/contact-us" element={<ContactUs />} />
         </Routes>
