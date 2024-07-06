@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { Component, useState, useEffect } from "react"
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -7,7 +8,6 @@ import Modal from '@mui/material/Modal';
 
 
 import { ethers, BrowserProvider } from 'ethers';
-
 import Staker from "../../contracts/Staker.sol/Staker.json";
 import {ModalStyle} from "./Common.js"
 import { pointer } from "@testing-library/user-event/dist/cjs/pointer/index.js";
@@ -39,13 +39,9 @@ function Content() {
     const [stakingRewardPool, setStakingRewardPool] = useState();
     const [isLoadingStakingRewardPool, setIsLoadingStakingRewardPool] = useState(false);
 
-    const [stakingPeriod, setStakingPeriod] = useState(); // in days
-    const [isLoadingStakingPeriod, setIsLoadingStakingPeriod] = useState(false);
-
-
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const [expectedReturnOpen, setExpectedReturnOpen] = React.useState(false);
+    const expectedReturnHandleOpen = () => setExpectedReturnOpen(true);
+    const expectedReturnHandleClose = () => setExpectedReturnOpen(false);
 
     async function connect() {
         try {
@@ -73,6 +69,10 @@ function Content() {
         }
     };
 
+
+    const [stakingPeriod, setStakingPeriod] = useState(); // in days
+    const [isLoadingStakingPeriod, setIsLoadingStakingPeriod] = useState(false);
+
     const fetchStakingPeriod = async () => {
         try {
             if (typeof window.ethereum !== "undefined") {
@@ -83,6 +83,25 @@ function Content() {
                 const stakingPeriodInDays = parseInt(stakingPeriodTs) / 24 / 60 / 60; // e.g.stakingPeriod 86400s -> 24 hours -> 1 day
                 setStakingPeriod(stakingPeriodInDays); 
                 setIsLoadingStakingPeriod(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const [depositTime, setDepositTime] = useState(); // in days
+    const [isLoadingDepositTime, setIsLoadingDepositTime] = useState(false);
+
+    const fetchDespositTime = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {
+                ;
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
+                setIsLoadingDepositTime(true);
+                const despositTs = await contract.depositTimestamps(connectedAddress);
+                const depositDate = new Date(parseInt(despositTs) * 1000);
+                setDepositTime(depositDate); 
+                setIsLoadingDepositTime(false);
             }
         } catch (err) {
             console.error(err);
@@ -118,20 +137,19 @@ function Content() {
             console.error(err);
         }
     };
-    const fetch = async () => {
+
+    const [isReadyForStakingRewardWithdrawal, setIsReadyForStakingRewardWithdrawal] = useState(false);
+    const checkIfReadyForStakingRewardWithdrawal = async () => {
         try {
-            if (typeof window.ethereum !== "undefined") {
-                ;
-                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
-                setIsLoadingEnerStakingReward(true);
-                const enerStakingReward = await contract.calculateGovernanceTokenStakingReward(connectedAddress);
-                setEnerStakingReward(parseInt(enerStakingReward));
-                setIsLoadingEnerStakingReward(false);
+            if (depositTime) {
+                var withdrawalDeadline = depositTime;
+                withdrawalDeadline.setSeconds(withdrawalDeadline.getSeconds() + stakingPeriod);
+                setIsReadyForStakingRewardWithdrawal(Date.now() > withdrawalDeadline);
             }
         } catch (err) {
             console.error(err);
         }
-    };
+    }
 
     const fetchTotalEnerStaked = async () => {
         try {
@@ -148,33 +166,78 @@ function Content() {
         }
     };
 
+
+    const [isLoadingWithdrawEnerToken, setIsLoadingWithdrawEnerToken] = useState(false);
+
+    const withdrawEnerToken = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
+                setIsLoadingWithdrawEnerToken(true);
+                await contract.withdrawGovernanceToken();
+                setIsLoadingWithdrawEnerToken(false);
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const [isLoadingStakeEnerToken, setIsLoadingStakeEnerToken] = useState(false);
+
+    const stakeEnerToken = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
+                setIsLoadingStakeEnerToken(true);
+                await contract.stake(
+                    enerStakeInput
+                );
+                setIsLoadingStakeEnerToken(false);
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const [enerStakeInput, setEnerStakeInput] = useState('');
+    const handleEnerStakeInputChange = event => {
+        setEnerStakeInput(event.target.value);
+    };
+
     useEffect(() => {
         // get signer and address
         connect();
 
         // Stake section
         fetchApy();
+        fetchStakingPeriod();
+        fetchDespositTime();
         fetchEnerStaked();
         fetchEnerStakingReward();
         fetchTotalEnerStaked();
-        fetchStakingPeriod();
+        checkIfReadyForStakingRewardWithdrawal();
 
     }, [connectedAddress]);
     return (
         <div className="col-sm-6 talk">
             <div className="modal">
                 <Modal
-                    open={open}
-                    onClose={handleClose}
+                    open={expectedReturnOpen}
+                    onClose={expectedReturnHandleClose}
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
                 >
                     <Box sx={ModalStyle}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Text in a modal
+                        <Typography id="modal-modal-title" variant="h6">
+                            <b>Expected Return (ENER)</b>
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                            "Expected Return (ENER)" = (1 + APY%) * "Staked (ENER)" 
+                            <br />
+                            <br />
+                            <i>Note that stake reward will only be given if the user keeps ENER token staked for at least the duration specified in "Staking Period (days)"</i>
                         </Typography>
                     </Box>
                 </Modal>
@@ -214,6 +277,21 @@ function Content() {
                     }
                     <br />
                     {
+                        !isLoadingDepositTime && (
+                            <div className="row">
+                                <div className="col-sm-4">
+                                    <h6>Deposit Time</h6>
+                                </div>
+                                <div className="col-sm-4">
+                                    {depositTime && (depositTime.toString())}
+                                </div>
+                            </div>
+                        ) || (
+                            <p>Loading Staking Period...</p>
+                        )
+                    }
+                    <br />
+                    {
                         !isLoadingEnerStaked && (
                             <div className="row">
                                 <div className="col-sm-4">
@@ -236,7 +314,7 @@ function Content() {
                                 <div className="col-sm-4">
                                     <h6>
                                         Expected Return (ENER)
-                                        <i onClick={handleOpen} class="fas fa-question-circle" style={{ cursor: "pointer" }}></i>
+                                        <i onClick={expectedReturnHandleOpen} class="fas fa-question-circle" style={{ cursor: "pointer" }}></i>
                                     </h6>
                                 </div>
                                 <div className="col-sm-4">
@@ -253,12 +331,19 @@ function Content() {
                     enerStaked <= 0 && (
                         // If no ener token staked yet. 
                         <div className="row">
-                            <TextField label="ENER" type="number" />
+                            <TextField 
+                                label="ENER" 
+                                type="number" 
+                                value= {enerStakeInput}
+                                onChange= {handleEnerStakeInputChange}    
+                            />
                             <Button
                                 className="btn btn-dark start start-two"
                                 variant="contained"
+                                onClick={stakeEnerToken}
+                                disabled={isLoadingStakeEnerToken}
                             >
-                                {"Stake!"}
+                                {"Stake ENER!"}
                             </Button>
                         </div>
                     ) || (
@@ -266,9 +351,11 @@ function Content() {
                             <Button
                                 className="btn btn-dark start start-two"
                                 variant="contained"
+                                onClick={withdrawEnerToken}
+                                disabled={isLoadingWithdrawEnerToken}
                             >
                                 {
-                                    true && (
+                                    isReadyForStakingRewardWithdrawal && (
                                         // If deadline passed
                                         "Withdraw ENER!"
                                     ) || (

@@ -14,6 +14,7 @@ import { pointer } from "@testing-library/user-event/dist/cjs/pointer/index.js";
 
 const stakerAddress = process.env.REACT_APP_STAKER_CONTRACT_ADDRESS;
 
+
 function RedeemColumn() {
     const { ethereum } = window;
     const provider = new BrowserProvider(ethereum);
@@ -21,9 +22,13 @@ function RedeemColumn() {
 
     const [connectedAddress, setConnectedAddress] = useState();
 
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const [expectedRewardOpen, setExpectedRewardOpen] = React.useState(false);
+    const expectedRewardHandleOpen = () => setExpectedRewardOpen(true);
+    const expectedRewardHandleClose = () => setExpectedRewardOpen(false);
+
+    const [rewardPoolOpen, setRewardPoolOpen] = React.useState(false);
+    const rewardPoolHandleOpen = () => setRewardPoolOpen(true);
+    const rewardPoolHandleClose = () => setRewardPoolOpen(false);
 
     async function connect() {
         try {
@@ -54,7 +59,7 @@ function RedeemColumn() {
             console.error(err);
         }
     };
-    
+
 
     const [expectedKwhTokenReward, setExpectedKwhTokenReward] = useState();
     const [isLoadingExpectedKwhTokenReward, setIsLoadingExpectedKwhTokenReward] = useState(false);
@@ -65,7 +70,7 @@ function RedeemColumn() {
                 ;
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingExpectedKwhTokenReward(true);
-                const expectedKwhTokenReward = await contract.rewards(stakerAddress);
+                const expectedKwhTokenReward = await contract.rewards(connectedAddress);
                 setExpectedKwhTokenReward(parseInt(expectedKwhTokenReward));
                 setIsLoadingExpectedKwhTokenReward(false);
             }
@@ -73,6 +78,24 @@ function RedeemColumn() {
             console.error(err);
         }
     };
+
+    const [isLoadingRedeemKwhToken, setIsLoadingRedeemKwhToken] = useState(false);
+
+    const redeemKwhToken = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
+                setIsLoadingRedeemKwhToken(true);
+                await contract.redeemUtilityTokenDistribution();
+                setIsLoadingRedeemKwhToken(false);
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+
 
     useEffect(() => {
         // get signer and address
@@ -87,17 +110,32 @@ function RedeemColumn() {
 
             <div className="modal">
                 <Modal
-                    open={open}
-                    onClose={handleClose}
+                    open={expectedRewardOpen}
+                    onClose={expectedRewardHandleClose}
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
                 >
                     <Box sx={ModalStyle}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Text in a modal
+                        <Typography id="modal-modal-title" variant="h6">
+                            <b>Expected Reward (KWH)</b>
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                             Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                        </Typography>
+                    </Box>
+                </Modal>
+                <Modal
+                    open={rewardPoolOpen}
+                    onClose={rewardPoolHandleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                >
+                    <Box sx={ModalStyle}>
+                        <Typography id="modal-modal-title" variant="h6">
+                            <b>Reward Pool (KWH)</b>
+                        </Typography>
+                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                            This is determined based on energy generation stats.
                         </Typography>
                     </Box>
                 </Modal>
@@ -112,7 +150,7 @@ function RedeemColumn() {
                                 <div className="col-sm-4">
                                     <h6>
                                         Reward Pool (KWH)
-                                        <i onClick={handleOpen} class="fas fa-question-circle" style={{ cursor: "pointer" }}></i>
+                                        <i onClick={rewardPoolHandleOpen} class="fas fa-question-circle" style={{ cursor: "pointer" }}></i>
                                     </h6>
                                 </div>
                                 <div className="col-sm-4">
@@ -128,10 +166,10 @@ function RedeemColumn() {
                         !isLoadingExpectedKwhTokenReward && (
                             <div className="row">
                                 <div className="col-sm-4">
-                                <h6>
-                                Expected Reward (KWH)
-                                <i onClick={handleOpen} class="fas fa-question-circle" style={{ cursor: "pointer" }}></i>
-                            </h6>
+                                    <h6>
+                                        Expected Reward (KWH)
+                                        <i onClick={expectedRewardHandleOpen} class="fas fa-question-circle" style={{ cursor: "pointer" }}></i>
+                                    </h6>
                                 </div>
                                 <div className="col-sm-4">
                                     {expectedKwhTokenReward}
@@ -144,13 +182,11 @@ function RedeemColumn() {
                 </div>
                 <Button
                     className="btn btn-dark start start-two"
-                    // onClick={incrementCounter}
                     variant="contained"
-                    /* If Expected Reward > 0 */
-                    disabled="true"
-                // disabled={isLoading}
+                    onClick={redeemKwhToken}
+                    disabled={expectedKwhTokenReward <= 0 || isLoadingRedeemKwhToken}
                 >
-                    {"Redeem!"}
+                    {"Redeem KWH!"}
                 </Button>
             </div>
         </div>

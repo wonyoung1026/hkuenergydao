@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { Component, useState, useEffect } from "react"
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -14,12 +15,20 @@ function Content() {
     const [signer, setSigner] = useState();
     const [connectedAddress, setConnectedAddress] = useState();
 
+    async function connect() {
+        try {
+            let signer = await provider.getSigner();
+            setSigner(signer);
+            let address = await signer.getAddress();
+            setConnectedAddress(address);
+        } catch (err) {
+            console.warn("failed to connect..", err);
+        }
+    }
+
     const [enerTokenStakingRewardPoolBalance, setEnerTokenStakingRewardPoolBalance] = useState();
     const [isLoadingEnerTokenStakingRewardPoolBalance, setIsLoadingEnerTokenStakingRewardPoolBalance] = useState(false);
     
-    const [kwhTokenRewardPoolBalance, setKwhTokenRewardPoolBalance] = useState();
-    const [isLoadingKwhTokenRewardPoolBalance, setIsLoadingKwhTokenRewardPoolBalance] = useState(false);
-
     const fetchEnerTokenStakingRewardPoolBalance = async () => {
         try {
             if (typeof window.ethereum !== "undefined") {
@@ -34,6 +43,11 @@ function Content() {
             console.error(err);
         }
     };
+
+
+    const [kwhTokenRewardPoolBalance, setKwhTokenRewardPoolBalance] = useState();
+    const [isLoadingKwhTokenRewardPoolBalance, setIsLoadingKwhTokenRewardPoolBalance] = useState(false);
+
     const fetchKwhTokenRewardPoolBalance = async () => {
         try {
             if (typeof window.ethereum !== "undefined") {
@@ -49,18 +63,53 @@ function Content() {
         }
     };
 
-    async function connect() {
+
+    const [kwhDistributionPoolInput, setKwhDistributionPoolInput] = useState('');
+    const handleKwhDistributionPoolInputChange = event => {
+        setKwhDistributionPoolInput(event.target.value);
+    };
+
+    const [isLoadingDistributeKwhToken, setIsLoadingDistributeKwhToken] = useState(false);
+
+    const distributeKwhToken = async () => {
         try {
-            let signer = await provider.getSigner();
-            setSigner(signer);
-            let address = await signer.getAddress();
-            setConnectedAddress(address);
+            if (typeof window.ethereum !== "undefined") {
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
+                setIsLoadingDistributeKwhToken(true);
+                await contract.distributeUtilityTokenReward(
+                    kwhDistributionPoolInput
+                );
+                setIsLoadingDistributeKwhToken(false);
+                window.location.reload();
+            }
         } catch (err) {
-            console.warn("failed to connect..", err);
+            console.error(err);
         }
     }
 
 
+    const [enerRewardPoolInput, setEnerRewardPoolInput] = useState('');
+    const handleEnerRewardPoolInputChange = event => {
+        setEnerRewardPoolInput(event.target.value);
+    };
+
+    const [isLoadingAddEnerStakingRewardPool, setIsLoadingAddEnerStakingRewardPool] = useState(false);
+
+    const addEnerStakingRewardPool = async () => {
+        try {
+            if (typeof window.ethereum !== "undefined") {
+                const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
+                setIsLoadingAddEnerStakingRewardPool(true);
+                await contract.addGovernmentTokenReward(
+                    enerRewardPoolInput
+                );
+                setIsLoadingAddEnerStakingRewardPool(false);
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
 
 
@@ -94,12 +143,19 @@ function Content() {
                     }
                 </div>
                 <div className="row">
-                    <TextField label="ENER" type="number" />
+                    <TextField 
+                        label="ENER" 
+                        type="number" 
+                        value= {enerRewardPoolInput}
+                        onChange= {handleEnerRewardPoolInputChange}    
+                    />
                     <Button
                         className="btn btn-dark start start-two"
                         variant="contained"
+                        onClick={addEnerStakingRewardPool}
+                        disabled={isLoadingAddEnerStakingRewardPool}
                     >
-                        {"Add!"}
+                        {"Add ENER!"}
                     </Button>
 
                 </div>
@@ -128,12 +184,19 @@ function Content() {
                 </div>
                 <br />
                 <div className="row">
-                    <TextField label="KWH" type="number" />
+                    <TextField 
+                        label="KWH" 
+                        type="number" 
+                        value= {kwhDistributionPoolInput}
+                        onChange= {handleKwhDistributionPoolInputChange}    
+                    />
                     <Button
                         className="btn btn-dark start start-two"
                         variant="contained"
+                        onClick={distributeKwhToken}
+                        disabled={isLoadingDistributeKwhToken}
                     >
-                        {"Distribute!"}
+                        {"Distribute KWH!"}
                     </Button>
                 </div>
             </div>

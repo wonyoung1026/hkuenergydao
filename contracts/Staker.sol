@@ -98,6 +98,7 @@ contract Staker {
     totalStaked = totalStaked - balance;
     governanceTokenStakingRewardPool = governanceTokenStakingRewardPool - stakingReward;
 
+    rewards[msg.sender] = 0;
     balances[msg.sender] = 0;
   }
 
@@ -106,6 +107,7 @@ contract Staker {
     uint256 utilityTokenReward = rewards[msg.sender];
     require(utilityTokenReward > 0 , "No reward to redeem");
     utilityToken.transfer(msg.sender, utilityTokenReward);
+    rewards[msg.sender] = 0;
     utilityTokenRewardPoolBalance = utilityTokenRewardPoolBalance - utilityTokenReward;
   }
 
