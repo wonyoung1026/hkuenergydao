@@ -6,9 +6,7 @@ import Staker from "../../contracts/Staker.sol/Staker.json";
 
 import { ethers, BrowserProvider } from 'ethers';
 
-// TODO: contract address hard coded for now
-const stakerAddress = "0x5459278815CEFB554919E16646D201Db10ffD7cd";
-console.log(stakerAddress, "Staker ABI: ", Staker.abi);
+const stakerAddress = process.env.REACT_APP_STAKER_CONTRACT_ADDRESS;
 
 function Nav() {
     const { sdk, connected, connecting, _, chainId } = useSDK();

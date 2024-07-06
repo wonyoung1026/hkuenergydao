@@ -6,9 +6,8 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // 2000000000000000000  -> 2 ENER
-// 500000000000000000   -> 0.5KWH
+// 600000000000000000   -> 0.5KWH
 contract Staker {
-  // Library g
   using SafeERC20 for IERC20;
 
 
@@ -21,14 +20,19 @@ contract Staker {
   mapping(address => uint256) public balances;
   mapping(address => uint256) public depositTimestamps;
   mapping(address => uint256) public rewards;
+  
+  // Keep track of address that are staking. This is needed because mapping cannot be iterated in solidity. Note that this should be optimized before rolling out to production
+  address[] stakedAddresses;  
 
 
   // TODO: 
   uint256 public lockDuration = 1 days;
+  // uint256 public lockDuration = 30 days;
   
   uint256 public stakingRewardRate;  // in percentage e.g. 40 -> 40% 
   uint256 public totalStaked;
   uint256 public utilityTokenRewardPool;
+  uint256 public utilityTokenRewardPoolBalance;
   uint256 public governanceTokenStakingRewardPool;
 
   address public owner; // Owner of the smart contract
@@ -68,6 +72,8 @@ contract Staker {
     balances[msg.sender] = balances[msg.sender] + amount;
     depositTimestamps[msg.sender] = block.timestamp;
     totalStaked = predictedTotalStakedGovernanceToken;
+    
+    stakedAddresses.push(msg.sender);
 
     emit Stake(msg.sender, amount);
   }
@@ -76,8 +82,7 @@ contract Staker {
   // Withdraw staked governance token
   function withdrawGovernanceToken() public {
 
-    require(balances[msg.sender] > 0 , "You have no balance to withdraw!");
-    require(utilityTokenRewardPool > 0 , "KWH token is not yet ready for distribution");
+    require(balances[msg.sender] > 0 , "You have no ENER balance to withdraw!");
     uint256 balance = balances[msg.sender];
     uint256 stakingReward = 0;
     // Locked staking. Pay reward only if tokens were locked for the lockDuration
@@ -90,7 +95,6 @@ contract Staker {
     
     governanceToken.transfer(msg.sender, totalReturn);
     
-    rewards[msg.sender] = calculateUtilityTokenReward(msg.sender);
     totalStaked = totalStaked - balance;
     governanceTokenStakingRewardPool = governanceTokenStakingRewardPool - stakingReward;
 
@@ -102,7 +106,7 @@ contract Staker {
     uint256 utilityTokenReward = rewards[msg.sender];
     require(utilityTokenReward > 0 , "No reward to redeem");
     utilityToken.transfer(msg.sender, utilityTokenReward);
-    utilityTokenRewardPool = utilityTokenRewardPool - utilityTokenReward;
+    utilityTokenRewardPoolBalance = utilityTokenRewardPoolBalance - utilityTokenReward;
   }
 
   // User Balance * APY
@@ -131,10 +135,17 @@ contract Staker {
   }
 
   // Function to allow owner to transfer tokens to this contract
-  function addUtilityTokenReward(uint256 amount) public {
-      require(isAdmin(msg.sender), "Only admin can transfer tokens");
+  function distributeUtilityTokenReward(uint256 amount) public {
+      require(isAdmin(msg.sender), "Only admin can distribute utility token rewards");
       utilityToken.transferFrom(msg.sender, address(this), amount);
-      utilityTokenRewardPool = utilityTokenRewardPool + amount;
+      utilityTokenRewardPool = utilityTokenRewardPoolBalance + amount;
+      utilityTokenRewardPoolBalance = utilityTokenRewardPool;
+      for (uint256 i = 0; i < stakedAddresses.length; ++i) {
+        uint256 utilityTokenReward = calculateUtilityTokenReward(stakedAddresses[i]);
+        if (utilityTokenReward > 0) {
+          rewards[stakedAddresses[i]] = utilityTokenReward;
+        }
+      }    
   }
 
   // Function to allow owner to transfer tokens to this contract

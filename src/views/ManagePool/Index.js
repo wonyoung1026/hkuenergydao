@@ -3,7 +3,7 @@ import Header from '../../components/Header/Header';
 import Content from './Content';
 import Footer from '../../components/Footer/Footer';
 
-class Governance extends Component {
+class ManagePool extends Component {
   render() {
         return (
             <div className="main-container">
@@ -16,4 +16,4 @@ class Governance extends Component {
     }
 }
 
-export default Governance;
+export default ManagePool
