@@ -29,7 +29,7 @@ function Content() {
                                     <i className="icon-screen-desktop m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Green Energy Global Reach</h5>
-                                <p className="lead mb-0">Though ENER DAO, our community easily access the lucrative return of renewable energy assets.</p>
+                                <p className="lead mb-0">Through ENER DAO, our community can easily access lucrative return from renewable energy assets.</p>
                             </div>
                         </div>
                         <div className="col-lg-4">
@@ -38,7 +38,7 @@ function Content() {
                                     <i className="icon-layers m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Climate Change Derisk</h5>
-                                <p className="lead mb-0">Carbon neutrality is global trend that is irreversible. ENER DAO provides the state-of-the-art mechansim to derisk your climate risks.</p>
+                                <p className="lead mb-0">Carbon neutrality is global and irreversible. ENER DAO provides the state-of-the-art mechansim to mitigate your climate risks.</p>
                             </div>
                         </div>
                         <div className="col-lg-4">
@@ -47,7 +47,7 @@ function Content() {
                                     <i className="icon-check m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Universial Basic Income</h5>
-                                <p className="lead mb-0">A sustainable community model like ENER DAO constructs a business case for providing continuos UBI for the community.</p>
+                                <p className="lead mb-0">ENER DAO builds a truly sustainable community for providing continuos UBI for the ENER DAO community.</p>
                             </div>
                         </div>
                     </div>
