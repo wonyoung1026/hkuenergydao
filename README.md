@@ -30,4 +30,11 @@ npx hardhat compile
 npx hardhat run scripts/deploy-staker.js --network zkEVM_Cardona
 ```
 
-Note you need to set `ACCOUNT_PRIVATE_KEY` and `INFURA_API_KEY` in .env file
+Note you need to set the below env vars in .env file
+```
+INFURA_API_KEY
+ACCOUNT_PRIVATE_KEY
+REACT_APP_ENER_TOKEN_CONTRACT_ADDRESS
+REACT_APP_KWH_TOKEN_CONTRACT_ADDRESS
+REACT_APP_STAKER_CONTRACT_ADDRESS
+```
