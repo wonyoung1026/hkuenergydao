@@ -120,7 +120,10 @@ function RedeemColumn() {
                             <b>Expected Reward (KWH)</b>
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                            Expected Reward (KWH) = [Staked (ENER) / Total Staked (ENER)] * [Reward Pool (KWH)]
+                            <br/>
+                            <br/>
+                            <i>Note that the proportion of the amount that is staked is determined at the time of utility token distribution.</i>
                         </Typography>
                     </Box>
                 </Modal>
