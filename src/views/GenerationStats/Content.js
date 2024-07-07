@@ -7,13 +7,17 @@ function Content() {
                 <div className="row">
                     <div className="col-sm-6 talk">
                         <br />
-                        Here is our asset map.
-                        <img src="../images/Asset map.png" alt="Asset Map"></img>
-                        Our asset management is done by Energy Management System that provides real-time generation and historical generation. ENER DAO community can refer to the below.
-                        <h6 className="bold-four">
-                        <img src="../images/real-time-yield.png" alt="Real Time Yield"></img>
-                        <img src="../images/daily-yield.png" alt="Daily Yield"></img>
-                    </h6>
+                        <b>Please login using the below credential.</b>                                                       
+                        <br></br>
+                        rchan93@connect.hku.hk
+                        <br></br>
+                        vuYdftS9d8GL8gv
+                        <br></br>
+                        <br></br>
+                        As a member of the ENER DAO community member, you can able to view the real time generation and historical generation of the assets. At the moment, the solar PV test plant is connect via the Sungrow platform. 
+                        <iframe src="https://web3.isolarcloud.com.hk/#/login" width="250%" height="1000" ></iframe>            
+                        
+
                     </div>
                 </div>
             </div>
