@@ -9,15 +9,27 @@ import Modal from '@mui/material/Modal';
 import { ethers, BrowserProvider } from 'ethers';
 
 import Staker from "../../contracts/Staker.sol/Staker.json";
+import EnerToken from "../../contracts/Ener.sol/EnerToken.json";
+import UtilToken from "../../contracts/Kwh.sol/UtilToken.json";
+
 import { ModalStyle } from "./Common.js"
-import { pointer } from "@testing-library/user-event/dist/cjs/pointer/index.js";
 
 const stakerAddress = process.env.REACT_APP_STAKER_CONTRACT_ADDRESS;
+const enerTokenAddress = process.env.REACT_APP_ENER_TOKEN_CONTRACT_ADDRESS;
+const kwhTokenAddress = process.env.REACT_APP_KWH_TOKEN_CONTRACT_ADDRESS;
+
+
+const { ethereum } = window;
+const provider = new BrowserProvider(ethereum);
+
+const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, provider);
+const enerTokenDecimals = parseInt(await enerTokenContract.decimals());
+
+const kwhTokenContract = new ethers.Contract(kwhTokenAddress, UtilToken.abi, provider);
+const kwhTokenDecimals = parseInt(await kwhTokenContract.decimals());
 
 
 function RedeemColumn() {
-    const { ethereum } = window;
-    const provider = new BrowserProvider(ethereum);
     const [signer, setSigner] = useState();
 
     const [connectedAddress, setConnectedAddress] = useState();
@@ -52,7 +64,8 @@ function RedeemColumn() {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingKwhTokenRewardPoolBalance(true);
                 const kwhTokenRewardPoolBalance = await contract.utilityTokenRewardPoolBalance();
-                setKwhTokenRewardPoolBalance(parseInt(kwhTokenRewardPoolBalance));
+                const adjustedKwhTokenRewardPoolBalance = parseInt(kwhTokenRewardPoolBalance)  / Math.pow(10, kwhTokenDecimals);
+                setKwhTokenRewardPoolBalance(adjustedKwhTokenRewardPoolBalance);
                 setIsLoadingKwhTokenRewardPoolBalance(false);
             }
         } catch (err) {
@@ -71,7 +84,8 @@ function RedeemColumn() {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingExpectedKwhTokenReward(true);
                 const expectedKwhTokenReward = await contract.rewards(connectedAddress);
-                setExpectedKwhTokenReward(parseInt(expectedKwhTokenReward));
+                const adjustedExpectedKwhTokenReward = parseInt(expectedKwhTokenReward)  / Math.pow(10, enerTokenDecimals);
+                setExpectedKwhTokenReward(adjustedExpectedKwhTokenReward);
                 setIsLoadingExpectedKwhTokenReward(false);
             }
         } catch (err) {
@@ -95,12 +109,10 @@ function RedeemColumn() {
         }
     }
 
-
-
     useEffect(() => {
         // get signer and address
         connect();
-
+        
         fetchKwhTokenRewardPoolBalance();
         fetchExpectedKwhTokenReward();
 

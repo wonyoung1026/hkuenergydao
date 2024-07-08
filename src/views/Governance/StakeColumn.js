@@ -8,36 +8,32 @@ import Modal from '@mui/material/Modal';
 
 
 import { ethers, BrowserProvider } from 'ethers';
+
 import Staker from "../../contracts/Staker.sol/Staker.json";
-import {ModalStyle} from "./Common.js"
-import { pointer } from "@testing-library/user-event/dist/cjs/pointer/index.js";
+import EnerToken from "../../contracts/Ener.sol/EnerToken.json";
+
+import { ModalStyle } from "./Common.js"
 
 const stakerAddress = process.env.REACT_APP_STAKER_CONTRACT_ADDRESS;
+const enerTokenAddress = process.env.REACT_APP_ENER_TOKEN_CONTRACT_ADDRESS;
 
+
+const { ethereum } = window;
+const provider = new BrowserProvider(ethereum);
+
+const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, provider);
+const enerTokenDecimals = parseInt(await enerTokenContract.decimals());
 
 function Content() {
-    const { ethereum } = window;
-    const provider = new BrowserProvider(ethereum);
     const [signer, setSigner] = useState();
 
     const [connectedAddress, setConnectedAddress] = useState();
-
-    const [apy, setApy] = useState();
-    const [isLoadingApy, setIsLoadingApy] = useState(false);
 
     const [enerStaked, setEnerStaked] = useState();
     const [isLoadingEnerStaked, setIsLoadingEnerStaked] = useState(false);
 
     const [enerStakingReward, setEnerStakingReward] = useState();
     const [isLoadingEnerStakingReward, setIsLoadingEnerStakingReward] = useState(false);
-
-
-
-    const [totalEnerStaked, setTotalEnerStaked] = useState();
-    const [isLoadingTotalEnerStaked, setIsLoadingTotalEnerStaked] = useState(false);
-
-    const [stakingRewardPool, setStakingRewardPool] = useState();
-    const [isLoadingStakingRewardPool, setIsLoadingStakingRewardPool] = useState(false);
 
     const [expectedReturnOpen, setExpectedReturnOpen] = React.useState(false);
     const expectedReturnHandleOpen = () => setExpectedReturnOpen(true);
@@ -54,6 +50,8 @@ function Content() {
         }
     }
 
+    const [apy, setApy] = useState();
+    const [isLoadingApy, setIsLoadingApy] = useState(false);
     const fetchApy = async () => {
         try {
             if (typeof window.ethereum !== "undefined") {
@@ -115,8 +113,10 @@ function Content() {
                 ;
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingEnerStaked(true);
-                const enerStaked = await contract.balances(connectedAddress);
-                setEnerStaked(parseInt(enerStaked));
+                const enerStaked = parseInt(await contract.balances(connectedAddress));
+                const adjustedEnerStaked = enerStaked / Math.pow(10, enerTokenDecimals);
+
+                setEnerStaked(adjustedEnerStaked.toString());
                 setIsLoadingEnerStaked(false);
             }
         } catch (err) {
@@ -126,11 +126,11 @@ function Content() {
     const fetchEnerStakingReward = async () => {
         try {
             if (typeof window.ethereum !== "undefined") {
-                ;
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingEnerStakingReward(true);
                 const enerStakingReward = await contract.calculateGovernanceTokenStakingReward(connectedAddress);
-                setEnerStakingReward(parseInt(enerStakingReward));
+                const adjustedEnerStakingReward = parseInt(enerStakingReward) / Math.pow(10, enerTokenDecimals);
+                setEnerStakingReward(adjustedEnerStakingReward.toString());
                 setIsLoadingEnerStakingReward(false);
             }
         } catch (err) {
@@ -150,22 +150,6 @@ function Content() {
             console.error(err);
         }
     }
-
-    const fetchTotalEnerStaked = async () => {
-        try {
-            if (typeof window.ethereum !== "undefined") {
-                ;
-                const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
-                setIsLoadingTotalEnerStaked(true);
-                const totalStaked = await contract.totalStaked();
-                setTotalEnerStaked(parseInt(totalStaked));
-                setIsLoadingTotalEnerStaked(false);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
 
     const [isLoadingWithdrawEnerToken, setIsLoadingWithdrawEnerToken] = useState(false);
 
@@ -190,8 +174,9 @@ function Content() {
             if (typeof window.ethereum !== "undefined") {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
                 setIsLoadingStakeEnerToken(true);
+                const adjustedEnerStakeInput = parseFloat(enerStakeInput) * Math.pow(10, enerTokenDecimals)
                 await contract.stake(
-                    enerStakeInput
+                    adjustedEnerStakeInput.toString()
                 );
                 setIsLoadingStakeEnerToken(false);
                 window.location.reload();
@@ -216,7 +201,8 @@ function Content() {
         fetchDespositTime();
         fetchEnerStaked();
         fetchEnerStakingReward();
-        fetchTotalEnerStaked();
+
+        
         checkIfReadyForStakingRewardWithdrawal();
 
     }, [connectedAddress]);
