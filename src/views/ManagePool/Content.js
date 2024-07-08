@@ -5,15 +5,30 @@ import TextField from '@mui/material/TextField';
 import { ethers, BrowserProvider } from 'ethers';
 
 import Staker from "../../contracts/Staker.sol/Staker.json";
+import EnerToken from "../../contracts/Ener.sol/EnerToken.json";
+import UtilToken from "../../contracts/Kwh.sol/UtilToken.json";
 
 const stakerAddress = process.env.REACT_APP_STAKER_CONTRACT_ADDRESS;
+const enerTokenAddress = process.env.REACT_APP_ENER_TOKEN_CONTRACT_ADDRESS;
+const kwhTokenAddress = process.env.REACT_APP_KWH_TOKEN_CONTRACT_ADDRESS;
+
+
+const { ethereum } = window;
+const provider = new BrowserProvider(ethereum);
+
+const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, provider);
+const enerTokenDecimals = parseInt(await enerTokenContract.decimals());
+
+const kwhTokenContract = new ethers.Contract(kwhTokenAddress, UtilToken.abi, provider);
+const kwhTokenDecimals = parseInt(await kwhTokenContract.decimals());
+
+
+
 
 function Content() {
-    const { ethereum } = window;
-    const provider = new BrowserProvider(ethereum);
     const [signer, setSigner] = useState();
     const [connectedAddress, setConnectedAddress] = useState();
-
+    
     async function connect() {
         try {
             let signer = await provider.getSigner();
@@ -31,11 +46,11 @@ function Content() {
     const fetchEnerTokenStakingRewardPoolBalance = async () => {
         try {
             if (typeof window.ethereum !== "undefined") {
-                ;
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingEnerTokenStakingRewardPoolBalance(true);
-                const enerTokenStakingRewardPoolBalance = await contract.governanceTokenStakingRewardPool();
-                setEnerTokenStakingRewardPoolBalance(parseInt(enerTokenStakingRewardPoolBalance));
+                const enerTokenStakingRewardPoolBalance = parseInt(await contract.governanceTokenStakingRewardPool());
+                const adjustedEnerTokenStakingRewardPoolBalance = enerTokenStakingRewardPoolBalance  / Math.pow(10, enerTokenDecimals);
+                setEnerTokenStakingRewardPoolBalance(adjustedEnerTokenStakingRewardPoolBalance.toString());
                 setIsLoadingEnerTokenStakingRewardPoolBalance(false);
             }
         } catch (err) {
@@ -53,8 +68,9 @@ function Content() {
                 ;
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, provider);
                 setIsLoadingKwhTokenRewardPoolBalance(true);
-                const kwhTokenRewardPoolBalance = await contract.utilityTokenRewardPoolBalance();
-                setKwhTokenRewardPoolBalance(parseInt(kwhTokenRewardPoolBalance));
+                const kwhTokenRewardPoolBalance = parseInt(await contract.utilityTokenRewardPoolBalance());
+                var adjustedKwhTokenRewardPoolBalance = kwhTokenRewardPoolBalance / Math.pow(10, kwhTokenDecimals);
+                setKwhTokenRewardPoolBalance(adjustedKwhTokenRewardPoolBalance.toString());
                 setIsLoadingKwhTokenRewardPoolBalance(false);
             }
         } catch (err) {
@@ -75,8 +91,9 @@ function Content() {
             if (typeof window.ethereum !== "undefined") {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
                 setIsLoadingDistributeKwhToken(true);
+                var adjustedKwhDistributionPoolInput = parseFloat(kwhDistributionPoolInput) * Math.pow(10, kwhTokenDecimals)
                 await contract.distributeUtilityTokenReward(
-                    kwhDistributionPoolInput
+                    adjustedKwhDistributionPoolInput.toString()
                 );
                 setIsLoadingDistributeKwhToken(false);
                 window.location.reload();
@@ -99,8 +116,9 @@ function Content() {
             if (typeof window.ethereum !== "undefined") {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
                 setIsLoadingAddEnerStakingRewardPool(true);
+                var adjustedEnerRewardPoolInput = parseFloat(enerRewardPoolInput) * Math.pow(10, enerTokenDecimals)
                 await contract.addGovernmentTokenReward(
-                    enerRewardPoolInput
+                    adjustedEnerRewardPoolInput.toString()
                 );
                 setIsLoadingAddEnerStakingRewardPool(false);
                 window.location.reload();
@@ -115,7 +133,7 @@ function Content() {
     useEffect(() => {
         // get signer and address
         connect();
-
+        
         fetchEnerTokenStakingRewardPoolBalance();
         fetchKwhTokenRewardPoolBalance();
     }, [connectedAddress]);
