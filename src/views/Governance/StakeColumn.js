@@ -173,7 +173,7 @@ function Content() {
                 setIsLoadingStakeEnerToken(true);
                 const adjustedEnerStakeInput = parseFloat(enerStakeInput) * Math.pow(10, enerTokenDecimals)
                 await enerTokenContract.approve(
-                    stakerAddress, adjustedEnerStakeInput.toString()
+                    stakerAddress, (adjustedEnerStakeInput + 1).toString()
                 );
                 await contract.stake(
                     adjustedEnerStakeInput.toString()
