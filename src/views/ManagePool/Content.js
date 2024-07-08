@@ -15,24 +15,21 @@ const kwhTokenAddress = process.env.REACT_APP_KWH_TOKEN_CONTRACT_ADDRESS;
 
 const { ethereum } = window;
 const provider = new BrowserProvider(ethereum);
-
-const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, provider);
+const signer = await provider.getSigner();
+const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, signer);
 const enerTokenDecimals = parseInt(await enerTokenContract.decimals());
 
-const kwhTokenContract = new ethers.Contract(kwhTokenAddress, UtilToken.abi, provider);
+const kwhTokenContract = new ethers.Contract(kwhTokenAddress, UtilToken.abi, signer);
 const kwhTokenDecimals = parseInt(await kwhTokenContract.decimals());
 
 
 
 
 function Content() {
-    const [signer, setSigner] = useState();
     const [connectedAddress, setConnectedAddress] = useState();
     
     async function connect() {
         try {
-            let signer = await provider.getSigner();
-            setSigner(signer);
             let address = await signer.getAddress();
             setConnectedAddress(address);
         } catch (err) {
@@ -92,6 +89,9 @@ function Content() {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
                 setIsLoadingDistributeKwhToken(true);
                 var adjustedKwhDistributionPoolInput = parseFloat(kwhDistributionPoolInput) * Math.pow(10, kwhTokenDecimals)
+                await kwhTokenContract.approve(
+                    stakerAddress, (adjustedKwhDistributionPoolInput + 1).toString()
+                );
                 await contract.distributeUtilityTokenReward(
                     adjustedKwhDistributionPoolInput.toString()
                 );
