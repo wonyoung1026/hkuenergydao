@@ -20,13 +20,12 @@ const enerTokenAddress = process.env.REACT_APP_ENER_TOKEN_CONTRACT_ADDRESS;
 
 const { ethereum } = window;
 const provider = new BrowserProvider(ethereum);
+const signer = await provider.getSigner();
 
-const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, provider);
+const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, signer);
 const enerTokenDecimals = parseInt(await enerTokenContract.decimals());
 
 function Content() {
-    const [signer, setSigner] = useState();
-
     const [connectedAddress, setConnectedAddress] = useState();
 
     const [enerStaked, setEnerStaked] = useState();
@@ -41,8 +40,6 @@ function Content() {
 
     async function connect() {
         try {
-            let signer = await provider.getSigner();
-            setSigner(signer);
             let address = await signer.getAddress();
             setConnectedAddress(address);
         } catch (err) {
@@ -175,6 +172,9 @@ function Content() {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
                 setIsLoadingStakeEnerToken(true);
                 const adjustedEnerStakeInput = parseFloat(enerStakeInput) * Math.pow(10, enerTokenDecimals)
+                await enerTokenContract.approve(
+                    stakerAddress, adjustedEnerStakeInput.toString()
+                );
                 await contract.stake(
                     adjustedEnerStakeInput.toString()
                 );
