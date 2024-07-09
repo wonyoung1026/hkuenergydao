@@ -341,8 +341,8 @@
       ]
     },
     "/Users/won/Desktop/workspace/hku/fyp/repos/hkuenergydao/contracts/Staker.sol": {
-      "lastModificationDate": 1720293106197,
-      "contentHash": "6f2376af5f4ad748f9e029b5dc6f2790",
+      "lastModificationDate": 1720545258703,
+      "contentHash": "ad2f00b740592cd5262c2e15d988eded",
       "sourceName": "contracts/Staker.sol",
       "solcConfig": {
         "version": "0.8.24",

@@ -90,7 +90,7 @@ function Content() {
                 setIsLoadingDistributeKwhToken(true);
                 var adjustedKwhDistributionPoolInput = parseFloat(kwhDistributionPoolInput) * Math.pow(10, kwhTokenDecimals)
                 await kwhTokenContract.approve(
-                    stakerAddress, (adjustedKwhDistributionPoolInput + 1).toString()
+                    stakerAddress, (adjustedKwhDistributionPoolInput+1).toString()
                 );
                 await contract.distributeUtilityTokenReward(
                     adjustedKwhDistributionPoolInput.toString()
@@ -117,6 +117,9 @@ function Content() {
                 const contract = new ethers.Contract(stakerAddress, Staker.abi, signer);
                 setIsLoadingAddEnerStakingRewardPool(true);
                 var adjustedEnerRewardPoolInput = parseFloat(enerRewardPoolInput) * Math.pow(10, enerTokenDecimals)
+                await enerTokenContract.approve(
+                    stakerAddress, (adjustedEnerRewardPoolInput+1).toString()
+                );
                 await contract.addGovernmentTokenReward(
                     adjustedEnerRewardPoolInput.toString()
                 );
@@ -170,7 +173,7 @@ function Content() {
                         className="btn btn-dark start start-two"
                         variant="contained"
                         onClick={addEnerStakingRewardPool}
-                        disabled={isLoadingAddEnerStakingRewardPool}
+                        // disabled={isLoadingAddEnerStakingRewardPool}
                     >
                         {"Add ENER!"}
                     </Button>
@@ -211,7 +214,7 @@ function Content() {
                         className="btn btn-dark start start-two"
                         variant="contained"
                         onClick={distributeKwhToken}
-                        disabled={isLoadingDistributeKwhToken}
+                        // disabled={isLoadingDistributeKwhToken}
                     >
                         {"Distribute KWH!"}
                     </Button>

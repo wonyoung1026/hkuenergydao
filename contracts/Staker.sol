@@ -67,7 +67,6 @@ contract Staker {
     uint predictedTotalGovernanceTokenStakingReward = predictedTotalStakedGovernanceToken * stakingRewardRate / 100;
     
     require(predictedTotalGovernanceTokenStakingReward <= governanceTokenStakingRewardPool, "Staking threshold limit reached.");
-
     governanceToken.transferFrom(msg.sender, address(this), amount);
     balances[msg.sender] = balances[msg.sender] + amount;
     depositTimestamps[msg.sender] = block.timestamp;
@@ -98,7 +97,6 @@ contract Staker {
     totalStaked = totalStaked - balance;
     governanceTokenStakingRewardPool = governanceTokenStakingRewardPool - stakingReward;
 
-    rewards[msg.sender] = 0;
     balances[msg.sender] = 0;
   }
 
@@ -121,19 +119,12 @@ contract Staker {
       return _calculateGovernanceTokenStakingRewardByAmount(balance);
   }
 
- function calculateUtilityTokenRewardPct(address user)  public view returns (uint256) {
-    if (totalStaked == 0) {
-      return 0;
-    }
-    return balances[user] / totalStaked;
- }
-
   // Utility Token Reward Pool * User Balance / Total Staked
   function calculateUtilityTokenReward(address user)  public view returns (uint256) {
     if (totalStaked == 0) {
       return 0;
     }
-    return utilityTokenRewardPool * calculateUtilityTokenRewardPct(user);
+    return (utilityTokenRewardPool * balances[user]) / totalStaked;
   }
 
   // Function to allow owner to transfer tokens to this contract
