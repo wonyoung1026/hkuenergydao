@@ -20,7 +20,9 @@ const kwhTokenAddress = process.env.REACT_APP_KWH_TOKEN_CONTRACT_ADDRESS;
 
 
 const { ethereum } = window;
-const provider = new BrowserProvider(ethereum);
+const provider = ((ethereum != null) ? new BrowserProvider(ethereum) : ethers.getDefaultProvider());
+
+// const provider = new BrowserProvider(ethereum);
 
 const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, provider);
 const enerTokenDecimals = parseInt(await enerTokenContract.decimals());
@@ -199,7 +201,7 @@ function RedeemColumn() {
                     className="btn btn-dark start start-two"
                     variant="contained"
                     onClick={redeemKwhToken}
-                    disabled={expectedKwhTokenReward <= 0 || isLoadingRedeemKwhToken}
+                    disabled={expectedKwhTokenReward <= 0}
                 >
                     {"Redeem KWH!"}
                 </Button>

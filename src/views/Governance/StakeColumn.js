@@ -19,7 +19,7 @@ const enerTokenAddress = process.env.REACT_APP_ENER_TOKEN_CONTRACT_ADDRESS;
 
 
 const { ethereum } = window;
-const provider = new BrowserProvider(ethereum);
+const provider = ((ethereum != null) ? new BrowserProvider(ethereum) : ethers.getDefaultProvider());
 const signer = await provider.getSigner();
 
 const enerTokenContract = new ethers.Contract(enerTokenAddress, EnerToken.abi, signer);
@@ -173,7 +173,7 @@ function Content() {
                 setIsLoadingStakeEnerToken(true);
                 const adjustedEnerStakeInput = parseFloat(enerStakeInput) * Math.pow(10, enerTokenDecimals)
                 await enerTokenContract.approve(
-                    stakerAddress, (adjustedEnerStakeInput + 1).toString()
+                    stakerAddress, (adjustedEnerStakeInput+1).toString()
                 );
                 await contract.stake(
                     adjustedEnerStakeInput.toString()
@@ -327,7 +327,7 @@ function Content() {
                                 className="btn btn-dark start start-two"
                                 variant="contained"
                                 onClick={stakeEnerToken}
-                                disabled={isLoadingStakeEnerToken}
+                                // disabled={isLoadingStakeEnerToken}
                             >
                                 {"Stake ENER!"}
                             </Button>
@@ -338,7 +338,7 @@ function Content() {
                                 className="btn btn-dark start start-two"
                                 variant="contained"
                                 onClick={withdrawEnerToken}
-                                disabled={isLoadingWithdrawEnerToken}
+                                // disabled={isLoadingWithdrawEnerToken}
                             >
                                 {
                                     isReadyForStakingRewardWithdrawal && (
