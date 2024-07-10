@@ -5,7 +5,7 @@ function Content() {
             <div>
             <section className="features-icons text-center det-ails">
                 <div className="container">
-                    <div className="row">
+                    <div className="row justify-content-center">
                         <div className="col-lg-4">
                             <div className="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
                                 <div className="features-icons-icon d-flex  icon-bra-ails">
