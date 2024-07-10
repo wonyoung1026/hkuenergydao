@@ -9,7 +9,7 @@ function Content() {
                         <h1>ENER DAO</h1>
                         <br />
                         <h6 className="bold-four" style={{ lineHeight: 1.6 }}>
-                        Welcome to <b>ENER DAO</b>, a pioneering community dedicated to transforming traditional energy systems into efficient, transparent, and decentralized models. Leveraging blockchain technology, <b>ENER DAO</b> empowers users to invest in renewable energy assets and earn rewards, supporting a sustainable and equitable energy distribution. Join us today in driving the global transition towards a cleaner, greener future and realizing the benefits of energy autonomy.
+                        Welcome to <b>ENER DAO</b>, a pioneering community dedicated to transforming traditional energy systems into efficient, transparent, and decentralized models. Leveraging blockchain technology, <b>ENER DAO</b> empowers members to invest in renewable energy assets and earn rewards, supporting sustainable and equitable energy distribution. Join us today in driving the global transition towards a cleaner, greener future and realizing the benefits of energy autonomy.
                     </h6>
                         <br />
                         <h6><a className="btn btn-dark start start-two" href="https://app.aragon.org/#/daos/polygon/0xb5499a94970440b6d6894fa26da3bf1c258fccd8">Check out DAO</a></h6>
@@ -29,7 +29,7 @@ function Content() {
                                     <i className="icon-screen-desktop m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Global Green Energy Investment</h5>
-                                <p>Through ENER DAO, our community can easily access rewarding returns from renewable energy assets like wind, solar, and hydroelectric power.</p>
+                                <p>Through ENER DAO, our community can easily access rewarding returns from renewable energy assets of wind, solar, and hydroelectric power etc.</p>
                             </div>
                         </div>
                         <div className="col-lg-4">
@@ -38,7 +38,7 @@ function Content() {
                                     <i className="icon-layers m-auto text-primary icon-ails"></i>
                                 </div>
                                 <h5>Climate Change Mitigation</h5>
-                                <p>Carbon neutrality is essential. ENER DAO provides state-of-the-art mechanisms to mitigate your climate risks through innovative renewable energy investments.</p>
+                                <p>Carbon neutrality is essential. ENER DAO provides state-of-the-art mechanisms to mitigate climate risks through innovative renewable energy investments.</p>
                             </div>
                         </div>
                         <div className="col-lg-4">
