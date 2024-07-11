@@ -99,7 +99,7 @@ function Nav() {
                         </li>
 
                         <li className="nav-item">
-                            <a className="nav-link" href="/contact-us">Contact us</a>
+                            <a className="nav-link" href="/contact-us">Contact Us</a>
                         </li>
 
 
