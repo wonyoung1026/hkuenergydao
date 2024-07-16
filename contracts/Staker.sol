@@ -1,33 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-// 2000000000000000000  -> 2 ENER
-// 600000000000000000   -> 0.5KWH
 contract Staker {
   using SafeERC20 for IERC20;
 
-
-  // ERC20 Contract address : governannce token (ENER) 
+  // ERC20 Contract address : governannce token (ENER). 2000000000000000000  -> 2 ENER
   IERC20 public immutable governanceToken;
   // ERC20 Contract address : utility token (KWH) 
   IERC20 public immutable utilityToken;
   
-  //주소별 금액과 입금 시간 저장
   mapping(address => uint256) public balances;
   mapping(address => uint256) public depositTimestamps;
   mapping(address => uint256) public rewards;
   
-  // Keep track of address that are staking. This is needed because mapping cannot be iterated in solidity. Note that this should be optimized before rolling out to production
+  // Array to keep track of address that are staking. 
+  // This is needed because mapping cannot be iterated in solidity. Note that this should be optimized before rolling out to production
   address[] stakedAddresses;  
 
-
-  // TODO: 
+  // Locked staking duration
   uint256 public lockDuration = 1 days;
-  // uint256 public lockDuration = 30 days;
   
   uint256 public stakingRewardRate;  // in percentage e.g. 40 -> 40% 
   uint256 public totalStaked;
@@ -38,9 +31,11 @@ contract Staker {
   address public owner; // Owner of the smart contract
   mapping(address => bool) public adminMap;
 
+  // Events
   event Stake(address indexed sender, uint256 amount);
   event Received(address, uint);
 
+  // Constructor
   constructor(address _enerToken, address _kwhToken, uint256 _stakingRewardRate) {
       require(_kwhToken != address(0), "utilityToken can not be zero");
       utilityToken = IERC20(_kwhToken);
@@ -54,18 +49,21 @@ contract Staker {
       
   }
 
+  // modifier to check if user has any reward to claim
   modifier notCompleted() {
     require(rewards[msg.sender] != 0, "No reward to claim!");
     _;
   }
 
+  // Function to stake ENER token 
   function stake(uint256 amount) public payable {
+    // Check wallet balance
     require(amount <= governanceToken.balanceOf(msg.sender), "Not enough ENER tokens in your wallet, please try lesser amount");
     require(governanceToken.allowance(msg.sender, address(this)) >= amount, "Not enough allowance granted to the contract");
-    // Check if governmance token pool is enough
     uint predictedTotalStakedGovernanceToken = totalStaked + amount;
     uint predictedTotalGovernanceTokenStakingReward = predictedTotalStakedGovernanceToken * stakingRewardRate / 100;
     
+    // Check if governmance token pool is enough
     require(predictedTotalGovernanceTokenStakingReward <= governanceTokenStakingRewardPool, "Staking threshold limit reached.");
     governanceToken.transferFrom(msg.sender, address(this), amount);
     balances[msg.sender] = balances[msg.sender] + amount;
@@ -78,7 +76,7 @@ contract Staker {
   }
 
 
-  // Withdraw staked governance token
+  // Function to withdraw staked governance tokenS
   function withdrawGovernanceToken() public {
 
     require(balances[msg.sender] > 0 , "You have no ENER balance to withdraw!");
@@ -100,7 +98,7 @@ contract Staker {
     balances[msg.sender] = 0;
   }
 
-  // Redeem utility token distribution
+  // Function to redeem distributed utility token
   function redeemUtilityTokenDistribution() public notCompleted {
     uint256 utilityTokenReward = rewards[msg.sender];
     require(utilityTokenReward > 0 , "No reward to redeem");
@@ -109,11 +107,12 @@ contract Staker {
     utilityTokenRewardPoolBalance = utilityTokenRewardPoolBalance - utilityTokenReward;
   }
 
-  // User Balance * APY
+  // Private function to calculate governance token reward 
+  // staking reward = User Balance * APY
   function _calculateGovernanceTokenStakingRewardByAmount(uint256 amount) public view returns (uint256) {
     return amount * stakingRewardRate / 100;
   }
-
+  // Function to calculate governance token reward by user
   function calculateGovernanceTokenStakingReward(address user) public view returns (uint256) {
       uint256 balance = balances[user];
       return _calculateGovernanceTokenStakingRewardByAmount(balance);
@@ -141,6 +140,7 @@ contract Staker {
       }    
   }
 
+  // NOTE: below admin specific functions can be removed once there is a smart contract for fetch energy data reliably
   // Function to allow owner to transfer tokens to this contract
   function addGovernmentTokenReward(uint256 amount) public {
       require(isAdmin(msg.sender), "Only admin can transfer tokens");
@@ -154,7 +154,7 @@ contract Staker {
       delete adminMap[user];
   }
 
-// Function to allow owner to add an admin
+  // Function to allow owner to add an admin
   function addAdmin(address user) public {
       require(msg.sender == owner, "Only owner can add admins");
       adminMap[user] = true;
